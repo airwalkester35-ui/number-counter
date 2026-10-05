@@ -178,8 +178,8 @@ button:active {
 </main>
 
 <script>
-let start = 1;
-
+let start = Number(localStorage.getItem('counterStart')) || 1;
+      
 const n = document.getElementById('number');
 const prev = document.getElementById('prev');
 const next = document.getElementById('next');
@@ -194,18 +194,21 @@ function render() {
 
 next.onclick = () => {
   start++;
+  localStorage.setItem('counterStart', start);
   render();
 };
 
 prev.onclick = () => {
   if (start > 1) {
     start--;
+    localStorage.setItem('counterStart', start);
     render();
   }
 };
 
 reset.onclick = () => {
   start = 1;
+  localStorage.setItem('counterStart', start);
   render();
 };
 
