@@ -36,9 +36,9 @@ body {
   justify-content: center;
   align-items: center;
   padding:
-  max(20px, env(safe-area-inset-top))
-  20px
-  140px;
+    max(20px, env(safe-area-inset-top))
+    20px
+    160px;
 }
 
 .app {
@@ -50,8 +50,38 @@ body {
 .title {
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   color: #555;
+}
+
+/* 開始番号設定 */
+.setting {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+#startInput {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  text-align: center;
+  background: white;
+  color: #111;
+}
+
+#setStart {
+  width: 90px;
+  border: 0;
+  border-radius: 12px;
+  background: #555;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 #number {
@@ -118,6 +148,12 @@ button:active {
   font-size: 1.05rem;
 }
 
+/* 長押し中 */
+.reset.holding {
+  transform: scale(.96);
+  opacity: .7;
+}
+
 /* 横画面 */
 @media (orientation: landscape) {
   body {
@@ -149,6 +185,17 @@ button:active {
     color: white;
   }
 
+  #startInput {
+    background: #2a2a2a;
+    color: white;
+    border-color: #555;
+  }
+
+  #setStart {
+    background: #aaa;
+    color: #111;
+  }
+
   button {
     background: #2a2a2a;
     color: white;
@@ -178,23 +225,35 @@ button:active {
 
   <div class="title">数字カウンター</div>
 
-  <div id="number">12345</div>
+  <div class="setting">
+    <input
+      id="startInput"
+      type="number"
+      inputmode="numeric"
+      placeholder="開始番号"
+    >
+    <button id="setStart">開始</button>
+  </div>
+
+  <div id="number">1・2・3・4・5</div>
 
   <div class="buttons">
     <button id="prev">1つ前</button>
     <button id="next">次</button>
-    <button id="reset" class="reset">リセット</button>
+    <button id="reset" class="reset">リセット（長押し）</button>
   </div>
 
 </main>
 
 <script>
 let start = Number(localStorage.getItem('counterStart')) || 1;
-      
+
 const n = document.getElementById('number');
 const prev = document.getElementById('prev');
 const next = document.getElementById('next');
 const reset = document.getElementById('reset');
+const startInput = document.getElementById('startInput');
+const setStart = document.getElementById('setStart');
 
 function render() {
   n.textContent = Array.from(
@@ -211,12 +270,14 @@ function render() {
   }
 }
 
+/* 次 */
 next.onclick = () => {
   start++;
   localStorage.setItem('counterStart', start);
   render();
 };
 
+/* 1つ前 */
 prev.onclick = () => {
   if (start > 1) {
     start--;
@@ -225,11 +286,53 @@ prev.onclick = () => {
   }
 };
 
-reset.onclick = () => {
-  start = 1;
+/* 開始番号を設定 */
+function setStartNumber() {
+  const value = Number(startInput.value);
+
+  if (!Number.isInteger(value) || value < 1) {
+    alert('1以上の整数を入力してください');
+    return;
+  }
+
+  start = value;
   localStorage.setItem('counterStart', start);
   render();
-};
+  startInput.value = '';
+}
+
+setStart.onclick = setStartNumber;
+
+startInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    setStartNumber();
+  }
+});
+
+/* リセット長押し */
+let resetTimer = null;
+
+reset.addEventListener('pointerdown', () => {
+  reset.classList.add('holding');
+
+  resetTimer = setTimeout(() => {
+    start = 1;
+    localStorage.setItem('counterStart', start);
+    render();
+
+    reset.classList.remove('holding');
+    alert('1にリセットしました');
+  }, 1500);
+});
+
+function cancelReset() {
+  clearTimeout(resetTimer);
+  reset.classList.remove('holding');
+}
+
+reset.addEventListener('pointerup', cancelReset);
+reset.addEventListener('pointerleave', cancelReset);
+reset.addEventListener('pointercancel', cancelReset);
 
 render();
 
