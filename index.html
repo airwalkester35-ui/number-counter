@@ -187,9 +187,9 @@ const reset = document.getElementById('reset');
 
 function render() {
   n.textContent = Array.from(
-    { length: 5 },
-    (_, i) => start + i
-  ).join('');
+  { length: 5 },
+  (_, i) => start + i
+).join('・');
 }
 
 next.onclick = () => {
