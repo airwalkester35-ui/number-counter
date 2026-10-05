@@ -55,10 +55,11 @@ body {
 }
 
 #number {
-  font-size: clamp(2.5rem, 12vw, 6rem);
+  width: 100%;
+  font-size: clamp(2rem, 10vw, 5rem);
   font-weight: 800;
   line-height: 1;
-  letter-spacing: .02em;
+  letter-spacing: 0;
   margin-bottom: 45px;
   color: #111;
   white-space: nowrap;
@@ -197,9 +198,17 @@ const reset = document.getElementById('reset');
 
 function render() {
   n.textContent = Array.from(
-  { length: 5 },
-  (_, i) => start + i
-).join('・');
+    { length: 5 },
+    (_, i) => start + i
+  ).join('・');
+
+  let size = 80;
+  n.style.fontSize = size + 'px';
+
+  while (n.scrollWidth > n.clientWidth && size > 20) {
+    size--;
+    n.style.fontSize = size + 'px';
+  }
 }
 
 next.onclick = () => {
